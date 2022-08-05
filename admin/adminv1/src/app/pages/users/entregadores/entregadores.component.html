@@ -1,0 +1,261 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h4 mb-0 font-weight-bold text-theme">Entregadores</h1>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- TABELA -->
+        <ng-container *ngIf="openView === 1">
+            <!-- Basic Card Example -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-end">
+                  <!-- <div class="col-lg-5">
+                    <h6 class="m-0 font-weight-bold text-theme">Entregadores</h6>
+                  </div> -->
+
+                  <mat-form-field class="col-lg-4 search-form">
+                    <div class="input-group">
+                      <input matInput (keyup)="applyFilter($event)" placeholder="Pesquisar" #input>
+                    </div>
+                  </mat-form-field>
+
+                  <div class="col-lg-3 text-right">
+                    <a (click)="isOpenView(2, null)" class="btn btn-primary btn-icon-split btn-sm">
+                        <span class="text">Adicionar entregador</span>
+                    </a>
+                  </div>
+
+                </div>
+                <div class="card-body">
+                  <div *ngIf="spinner" class="box-spinner">
+                    <mat-spinner color="warn" diameter="30"></mat-spinner>
+                  </div>
+
+                  <div *ngIf="!spinner" class="table-responsive">
+                      <table mat-table [dataSource]="dataSource" matSort class="table align-items-center table-flush" id="dataTable" width="100%" cellspacing="0">
+                      
+                      <ng-container matColumnDef="image">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort"></th>
+                        <td mat-cell *matCellDef="let row">
+                          <ng-container  *ngIf="!row.image">
+                            <img class="img-profile img-width-profile rounded-circle" src="assets/img/undraw_profile_2.svg">
+                          </ng-container>
+
+                          <ng-container  *ngIf="row.image">
+                            <img class="img-profile img-width-profile rounded-circle" src="http://localhost:8000/storage/media/{{row.image}}">
+                          </ng-container>
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="nome">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Nome</th>
+                          <td mat-cell *matCellDef="let row"> {{row.name}}</td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="avaliacao">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Avaliação</th>
+                        <td mat-cell *matCellDef="let row">
+                          <ng-container *ngIf="row.avaliacao">
+                            <i class="fas fa-star"></i>
+                            {{row.avaliacao}}
+                          </ng-container>
+                          <ng-container *ngIf="!row.avaliacao">
+                            <i class="far fa-star"></i>
+                            0.0
+                          </ng-container>
+                        </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="email">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Email</th>
+                          <td mat-cell *matCellDef="let row"> {{row.email}}</td>
+                      </ng-container>
+                      
+                      <ng-container matColumnDef="criado">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Data da Criação</th>
+                          <td mat-cell *matCellDef="let row"> {{row.created_at | date: 'dd/MM/yy'}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="acoes">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort"></th>
+                          <td mat-cell *matCellDef="let row" class="text-right">
+                          <div class="dropdown">
+                              <a class="btn btn-sm btn-icon-only text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fas fa-ellipsis-v"></i>
+                              </a>
+                              <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                                <a (click)="isOpenView(3, row.id)"  class="dropdown-item item-edit">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Editar</span>
+                                </a>
+                                <a (click)="openModalDelete(row.id)"class="dropdown-item item-delete">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Deletar</span>
+                                </a>
+                              </div>
+                          </div>
+                          </td>
+                      </ng-container>
+
+                          <tr mat-header-row *matHeaderRowDef="displayed"></tr>
+                          <tr mat-row *matRowDef="let row; columns: displayed;"></tr>
+
+                          <tr class="mat-row no-data" *matNoDataRow>
+                              <p>Nenhum usuário entregador cadastrado.</p>
+                          </tr>
+                      </table>
+                  </div>
+                  <!-- Card footer -->
+                  <div class="card-footer">
+                      <!-- PAGINATOR -->
+                      <mat-paginator
+                      [pageSizeOptions]="pageSizeOptions"
+                      >
+                      </mat-paginator>
+                  </div>
+                </div>
+            </div>
+            <!-- Collapsable Card Example -->
+            
+        </ng-container>
+
+        <!-- ADD -->
+        <ng-container *ngIf="openView === 2">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex">
+              <div class="col-lg-8">
+                <h6 class="m-0 text-muted">Adicionar entregador</h6>
+              </div>
+              <div class="col-lg-4 text-right">
+                <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                    <span class="text">Voltar</span>
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="dataForm" (ngSubmit)="post()">
+                <!-- Alertas -->
+                <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                [isOpen]="responseSrv.open"
+                [dismissible]="responseSrv.dismissible"
+                (onClosed)="responseSrv.onClosed()"
+                >
+                  <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                    <span>{{mensagem}}</span><br />
+                  </ng-container>
+                </alert>
+
+                <div class="p-4">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-email">Nome</label>
+                        <input formControlName="name" placeholder="Nome do entregador" type="text" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.name.invalid">
+                          Digite um nome válido.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Email</label>
+                        <input formControlName="email" placeholder="exemplo@email.com" type="email" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.email.invalid">
+                          Digite um email válido.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Senha</label>
+                        <input formControlName="password" placeholder="********" autocomplete="new-password" type="password" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.password.invalid">
+                          Digite uma senha válido.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Confirmação de Senha</label>
+                        <input formControlName="password_confirmation" placeholder="********" autocomplete="new-password" type="password" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.password_confirmation.invalid">
+                          Digite uma confirmação de senha válida.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <button type="submit" [disabled]="dataForm.invalid"  class="btn btn-success btn-30">Enviar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
+         <!-- EDITAR -->
+         <ng-container *ngIf="openView === 3">
+            <!-- Collapsable Card Example -->
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex">
+                <div class="col-lg-8">
+                  <h6 class="m-0 text-muted">Editar informações do entregador</h6>
+                </div>
+                <div class="col-lg-4 text-right">
+                  <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="text">Voltar</span>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body">
+                <form [formGroup]="updateForm" *ngIf="dataGetByID" (ngSubmit)="update(dataGetByID.id)">
+                  <!-- Alertas -->
+                  <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                  [isOpen]="responseSrv.open"
+                  [dismissible]="responseSrv.dismissible"
+                  (onClosed)="responseSrv.onClosed()"
+                  >
+                    <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                      <span>{{mensagem}}</span><br />
+                    </ng-container>
+                  </alert>
+
+                  <div class="p-4">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="form-group">
+                          <label class="form-control-label" for="input-email">Nome</label>
+                          <input [(ngModel)]="dataGetByID.name" formControlName="name" placeholder="Nome Sobrenome" type="text" class="form-control">
+                          <span class="text-danger error" *ngIf="updateForm.controls.name.invalid">
+                            Digite um nome válido.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="form-group">
+                          <label class="form-control-label" for="input-first-name">Email</label>
+                          <input [(ngModel)]="dataGetByID.email" formControlName="email"placeholder="exemplo@email.com" type="email" class="form-control">
+                          <span class="text-danger error" *ngIf="updateForm.controls.email.invalid">
+                            Digite um email válido.
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <button type="submit" [disabled]="updateForm.invalid" class="btn btn-success btn-30">Enviar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
+

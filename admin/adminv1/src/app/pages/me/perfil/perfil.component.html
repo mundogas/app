@@ -1,0 +1,184 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <h1 class="h4 mb-0 font-weight-bold text-theme">Meu Perfil</h1>
+</div>
+
+
+<div class="row pb-3">
+    <div class="col-lg-3 col-sm-5">
+        <div class="card-body-img text-center">
+          <ng-container *ngIf="dataGetByID.image">
+            <img [src]="dataGetByID.image">
+          </ng-container>
+
+          <ng-container  *ngIf="!dataGetByID.image">
+            <img src="assets/img/undraw_profile_2.svg">
+          </ng-container>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-sm-7">
+        <div class="card mt-3 card-arrow-right border-left-info shadow mb-4">
+            <div class="card-body min-height">
+                <h6 class="m-0 font-weight-bold text-theme">{{tokenSrv.getUser().name}}</h6>
+                <p>{{tokenSrv.getUser().email}}</p>
+
+                <a *ngIf="!openFormImage" (click)="isOpenFormImage()" class="btn btn-primary btn-icon-split btn-sm mb-2">
+                  <span class="text">Alterar Foto</span>
+                </a>
+                
+                <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                  [isOpen]="responseSrv.open3"
+                  [dismissible]="responseSrv.dismissible"
+                  (onClosed)="responseSrv.onClosed()"
+                  >
+                    <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                    <span>{{mensagem}}</span><br />
+                    </ng-container>
+                </alert>
+
+                <form *ngIf="openFormImage" [formGroup]="imageForm" (ngSubmit)="alterarFoto()">
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="form-group no-border">
+                        <input type="file" accept="image/jpg, image/jpeg, image/png" formControlName="image" (change)="fileSelected($event)" class="form-control" >
+                      </div>
+                    </div>
+                  </div>
+
+                  <button type="submit" [disabled]="imageForm.invalid" class="btn btn-success">Enviar</button>
+                  <button type="cancel" (click)="isClosedFormImage()" class="btn btn-white">Cancelar</button>
+                </form>
+            </div>
+        </div>
+        <!-- Collapsable Card Example -->
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- Collapsable Card Example -->
+        <div class="card shadow mb-4">
+            <!-- Card Header - Accordion -->
+            <a href="#collapseCardBasicForm" class="d-block card-header py-3" data-toggle="collapse"
+                role="button" aria-expanded="true" aria-controls="collapseCardBasicForm">
+                <h6 class="m-0 font-weight-bold text-theme">Alterar dados pessoais</h6>
+            </a>
+            <!-- Card Content - Collapse -->
+            <div class="collapse show" id="collapseCardBasicForm">
+                <div class="card-body">
+                    <form [formGroup]="basicForm" *ngIf="dataGetByID" (ngSubmit)="update()">
+                        <!-- Alertas -->
+                        <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                        [isOpen]="responseSrv.open"
+                        [dismissible]="responseSrv.dismissible"
+                        (onClosed)="responseSrv.onClosed()"
+                        >
+                          <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                            <span>{{mensagem}}</span><br />
+                          </ng-container>
+                        </alert>
+
+                        <div class="p-4">
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <div class="form-group">
+                                <label class="form-control-label" for="input-first-name">Nome</label>
+                                <input [(ngModel)]="dataGetByID.name" type="text" formControlName="name"
+                                placeholder="Nome Sobrenome" class="form-control">
+                                <span class="text-danger error" *ngIf="basicForm.controls.name.invalid" autocomplete="new-password">
+                                  Para alterar, digite o nome.
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-lg-12">
+                              <div class="form-group">
+                                <label class="form-control-label" for="input-first-name">Email</label>
+                                <input [(ngModel)]="dataGetByID.email" type="email" formControlName="email" placeholder="exemplo@exemplo.com" class="form-control">
+                                <span class="text-danger error" *ngIf="basicForm.controls.email.invalid">
+                                  Para alterar, digite um email.
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <button [disabled]="basicForm.invalid" type="submit"  class="btn btn-success btn-50">Enviar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12">
+      <!-- Collapsable Card Example -->
+      <div class="card shadow mb-4">
+          <!-- Card Header - Accordion -->
+          <a href="#collapseCardResetPassword" class="d-block card-header py-3" data-toggle="collapse"
+              role="button" aria-expanded="true" aria-controls="collapseCardResetPassword">
+              <h6 class="m-0 font-weight-bold text-theme">Alterar senha</h6>
+          </a>
+          <!-- Card Content - Collapse -->
+          <div class="collapse show" id="collapseCardResetPassword">
+              <div class="card-body">
+                  <form [formGroup]="dataForm" (ngSubmit)="alterarSenha()">
+                      <!-- Alertas -->
+                      <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                      [isOpen]="responseSrv.open2"
+                      [dismissible]="responseSrv.dismissible"
+                      (onClosed)="responseSrv.onClosed()"
+                      >
+                        <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                          <span>{{mensagem}}</span><br />
+                        </ng-container>
+                      </alert>
+
+                      <div class="p-4">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="form-group">
+                              <label class="form-control-label" for="input-email">Senha atual</label>
+                              <input type="password" formControlName="current_password"
+                              placeholder="********" class="form-control" autocomplete="new-password" >
+                              <span class="text-danger error" *ngIf="dataForm.controls.current_password.invalid" autocomplete="new-password">
+                                Para alterar, digite a senha atual.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="form-group">
+                              <label class="form-control-label" for="input-first-name">Nova senha</label>
+                              <input type="password" formControlName="password"
+                              placeholder="********" class="form-control" autocomplete="new-password">
+                              <span class="text-danger error" *ngIf="dataForm.controls.password.invalid" autocomplete="new-password">
+                                Para alterar, digite a nova senha.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="form-group">
+                              <label class="form-control-label" for="input-first-name">Confirmar senha</label>
+                              <input type="password" formControlName="password_confirmation" placeholder="********" class="form-control">
+                              <span class="text-danger error" *ngIf="dataForm.controls.password_confirmation.invalid" autocomplete="new-password">
+                                Para alterar, digite a confirmação de senha.
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="text-right">
+                        <button [disabled]="dataForm.invalid" type="submit" class="btn btn-success btn-50">Enviar</button>
+                      </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

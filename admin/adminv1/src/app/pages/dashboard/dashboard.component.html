@@ -1,0 +1,191 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+</div>
+
+<div *ngIf="spinner" class="box-spinner">
+    <mat-spinner color="warn" diameter="30"></mat-spinner>
+</div>
+
+<div *ngIf="!spinner" class="row">
+
+    <!-- RESPONSÁVEIS CADASTRADOS -->
+    <div class="col-xl-4 col-md-4 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="size-15 text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Clientes</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{dataCard.clientes}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-user-alt fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMPRESA -->
+    <div class="col-xl-4 col-md-4 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="size-15 text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Produtos</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{dataCard.produtos}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-fire fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Card Example -->
+    <div class="col-xl-4 col-md-4 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="size-15 text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Pedidos</div>
+                        <div class="h3 mb-0 font-weight-bold text-gray-800">{{dataCard.pedidos}}</div>
+                        <!-- <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Empresas cadastradas
+                        </div>
+                        <div class="row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">50%</div>
+                            </div>
+                            <div class="col">
+                                <div class="progress progress-sm mr-2">
+                                    <div class="progress-bar bg-info" role="progressbar"
+                                        style="width: 50%" aria-valuenow="50" aria-valuemin="0"
+                                        aria-valuemax="100"></div>
+                                </div>
+                            </div> 
+                        </div>-->
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dolly fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="!spinner">
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Collapsable Card Example -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseCardPedidos" class="d-block card-header py-3" data-toggle="collapse"
+                    role="button" aria-expanded="true" aria-controls="collapseCardPedidos">
+                    <h6 class="m-0 font-weight-bold text-primary">Últimos Pedidos</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse show" id="collapseCardPedidos">
+                    <div class="card-body">
+                        <table class="table table-responsive align-items-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="sort" data-sort="name">#</th>
+                                <th scope="col" class="sort" data-sort="name">Data/Hora</th>
+                                <th scope="col" class="sort" data-sort="name">Cliente</th>
+                                <th scope="col" class="sort" data-sort="name">Celular</th>
+                                <th scope="col" class="sort" data-sort="status">Entregador</th>
+                                <th scope="col" class="sort" data-sort="status">Endereço</th>
+                                <th scope="col" class="sort" data-sort="status">Status</th>
+                                <th scope="col" class="sort" data-sort="status">Valor</th>
+                            </tr>
+                            </thead>
+                    
+                            <tbody class="list">
+                            <tr *ngFor="let item of dataCard.ultimos_pedidos">
+                                <td>
+                                #{{item.id}}
+                                </td>
+                                <td>
+                                {{item.date_hour | date: 'dd/MM/yy HH:mm'}}
+                                </td>
+                                <td>
+                                {{item.cliente.name}}
+                                </td>
+                                <td>
+                                {{item.cliente.phone}}
+                                </td>
+                                <td>
+                                    <span *ngIf="item.entregador">{{item.entregador.name}}</span>
+                                    <span *ngIf="!item.entregador">Nenhum entregador atribuído</span>
+                                </td>
+                                <td>
+                                    {{item.endereco.address}}, {{item.endereco.number}} - {{item.endereco.district}}
+                                    </td>
+                                <td>
+                                    {{item.status}}
+                                </td>
+                                <td>
+                                {{item.total | currency: 'BRL'}}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <!-- Collapsable Card Example -->
+            <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#collapseFeedbackPedido" class="d-block card-header py-3" data-toggle="collapse"
+                    role="button" aria-expanded="true" aria-controls="collapseFeedbackPedido">
+                    <h6 class="m-0 font-weight-bold text-primary">Últimos feedbacks de pedidos</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse show" id="collapseFeedbackPedido">
+                    <div class="card-body">
+                        <table class="table table-responsive align-items-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="sort" data-sort="name">#Pedido</th>
+                                <th scope="col" class="sort" data-sort="name">Entregador</th>
+                                <th scope="col" class="sort" data-sort="name">Avaliação</th>
+                                <th scope="col" class="sort" data-sort="status">Observação</th>
+                            </tr>
+                            </thead>
+                    
+                            <tbody class="list">
+                            <tr *ngFor="let item of dataCard.feedbacks">
+                                <td>
+                                    #{{item.pedido_id}}
+                                </td>
+                                <td>
+                                {{item.entregador.name}}
+                                </td>
+                                <td>
+                                    <i class="fas fa-star"></i> {{item.stars}}
+                                </td>
+                                <td>
+                                    <span *ngIf="item.obs">{{item.obs}}</span>
+                                    <span *ngIf="!item.obs">Sem nenhuma observação</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /.container-fluid -->

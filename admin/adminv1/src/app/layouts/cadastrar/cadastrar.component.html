@@ -1,0 +1,70 @@
+<div class="container">
+
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+                <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
+                <div class="col-lg-7">
+                    <div class="p-5">
+                        <div class="text-center">
+                            <h1 class="h4 text-gray-900 mb-4">Criar uma Conta</h1>
+                            <p>
+                                A senha precisa ter mais de 8 caracteres
+                            </p>
+                        </div>
+                        <form [formGroup]="cadastroForm" class="user" (ngSubmit)="cadastrar()">
+                            <!-- Alertas -->
+                            <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                            [isOpen]="responseSrv.open"
+                            [dismissible]="responseSrv.dismissible"
+                            (onClosed)="responseSrv.onClosed()"
+                            >
+                                <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                                <span>{{mensagem}}</span><br />
+                                </ng-container>
+                            </alert>
+
+                            <div class="form-group">
+                                <input type="text" class="form-control form-control-user"
+                                formControlName="name" 
+                                placeholder="Nome Completo">
+                            </div>
+
+                            <div class="form-group">
+                                <input type="email" class="form-control form-control-user" formControlName="email" 
+                                placeholder="exemplo@exemplo.com" autocomplete="new-email">
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="password" class="form-control form-control-user"
+                                    formControlName="password"  placeholder="Senha" autocomplete="new-password">
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <input type="password" class="form-control form-control-user"
+                                    formControlName="password_confirmation" placeholder="Repetir Senha">
+                                    <span class="text-danger error" *ngIf="cadastroForm.controls.password_confirmation.invalid">
+                                        Digite uma senha válido.
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="submit" [disabled]="cadastroForm.invalid" class="btn btn-primary btn-user btn-block">
+                                Cadastrar
+                            </button>
+                        </form>
+                        <hr>
+                        <div class="text-center">
+                            <a class="small" routerLink="/esqueci-senha">Esqueceu a senha?</a>
+                        </div>
+                        <div class="text-center">
+                            <a class="small" routerLink="/login">Já está cadastrado? Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

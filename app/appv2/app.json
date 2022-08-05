@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Mundo do Gás",
+    "slug": "mundogas",
+    "version": "1.2.2",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mundogas.app",
+      "buildNumber": "1.2.2"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.mundogas.app",
+      "versionCode": 6,
+      "permissions": [""]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2026a205-6885-4f9b-9c14-86b6a0f90ade"
+      }
+    }
+  }
+}

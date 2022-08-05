@@ -1,0 +1,511 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 font-weight-bold text-theme">Produtos</h1>
+</div>
+
+<div class="row">
+  <div style="margin-top: -25px; position: absolute; z-index: 99; right:10px">
+    <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+           [isOpen]="responseSrv.open2"
+           [dismissible]="responseSrv.dismissible"
+           (onClosed)="responseSrv.onClosed()"
+    >
+      <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+        <span>{{mensagem}}</span><br />
+      </ng-container>
+    </alert>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- TABELA -->
+        <ng-container *ngIf="openView === 1">
+            <!-- Basic Card Example -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-end">
+                  <mat-form-field class="col-lg-4 search-form">
+                    <div class="input-group">
+                      <input matInput (keyup)="applyFilter($event)" placeholder="Pesquisar pelo nome do produto" #input>
+                    </div>
+                  </mat-form-field>
+
+                  <div class="col-lg-3 text-right">
+                    <a (click)="isOpenView(2, null)" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="text">Adicionar produto</span>
+                    </a>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="spinner" class="box-spinner">
+                    <mat-spinner color="warn" diameter="30"></mat-spinner>
+                  </div>
+
+                  <div *ngIf="!spinner" class="table-responsive">
+                      <table mat-table [dataSource]="dataSource" matSort class="table align-items-center table-flush" id="dataTable" width="100%" cellspacing="0">
+
+                      <ng-container matColumnDef="nome">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Nome</th>
+                          <td mat-cell *matCellDef="let row"> {{row.name}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="cidades">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Cidade(s)</th>
+                          <td mat-cell *matCellDef="let row">
+                            <div *ngIf="row.cidades.length <= 0" class="pl-3">
+                              <span>Nenhuma cidade cadastrada</span>
+                            </div>
+                            <div *ngIf="row.cidades" class="p-2" style="display: flex; flex-wrap: wrap">
+                              <div *ngFor="let cidade of row.cidades;  let i = index;">
+                                <div class="bg-price m-1">
+                                  {{cidade.cidade.name}}
+                                  &nbsp;
+                                  <span *ngIf="cidade.promotion === 1">{{cidade.discount_price | currency: 'BRL'}}</span>
+                                  <span *ngIf="cidade.promotion === 0"> {{cidade.sale_price | currency: 'BRL' }}</span>
+                                  &nbsp;
+                                  <!-- ícones -->
+                                    <i class="fas fa-tag" [ngClass]="cidade.promotion === 1 ? 'discount-price' : 'sale-price'" style=" font-size: 16px"></i>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="ativo">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Ativo</th>
+                          <td mat-cell *matCellDef="let row">
+                            <div *ngIf="row.ativo === 1">Sim</div>
+                            <div *ngIf="row.ativo === 0">Não</div>
+                          </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="acoes">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort"></th>
+                          <td mat-cell *matCellDef="let row" class="text-right">
+                          <div class="dropdown">
+                              <a class="btn btn-sm btn-icon-only text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fas fa-ellipsis-v"></i>
+                              </a>
+                              <div class="dropdown-menu dropdown-menu-right
+                              dropdown-menu-arrow">
+                                <a (click)="isOpenView(3, row.id)"  class="dropdown-item item-edit">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Editar</span>
+                                </a>
+
+                                <a (click)="openModalDelete(row.id)" class="dropdown-item item-delete">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Deletar</span>
+                                </a>
+                              </div>
+                          </div>
+                          </td>
+                      </ng-container>
+
+                          <tr mat-header-row *matHeaderRowDef="displayed"></tr>
+                          <tr mat-row *matRowDef="let row; columns: displayed;"></tr>
+
+                          <tr class="mat-row no-data" *matNoDataRow>
+                            <p>Nenhum produto cadastrado.</p>
+                          </tr>
+                      </table>
+                  </div>
+                  <!-- Card footer -->
+                  <div class="card-footer">
+                      <!-- PAGINATOR -->
+                      <mat-paginator
+                      [pageSizeOptions]="pageSizeOptions"
+                      >
+                      </mat-paginator>
+                  </div>
+                </div>
+            </div>
+            <!-- Collapsable Card Example -->
+
+        </ng-container>
+
+        <!-- ADD -->
+        <ng-container *ngIf="openView === 2">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex">
+              <div class="col-lg-8">
+                <h6 class="m-0 text-muted">Adicionar produto</h6>
+              </div>
+              <div class="col-lg-4 text-right">
+                <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                    <span class="text">Voltar</span>
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="dataForm" (ngSubmit)="post()">
+                <!-- Alertas -->
+                <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                [isOpen]="responseSrv.open"
+                [dismissible]="responseSrv.dismissible"
+                (onClosed)="responseSrv.onClosed()"
+                >
+                  <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                    <span>{{mensagem}}</span><br />
+                  </ng-container>
+                </alert>
+
+                <div class="p-4">
+                  <div class="row">
+                    <div class="col-6">
+                      <mat-form-field appearance="fill">
+                        <mat-label>Nome</mat-label>
+                        <input formControlName="name" matInput (ngModelChange)="ativarButtonSubmitPost()">
+                      </mat-form-field>
+                    </div>
+
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label class="form-control-label">Extras</label> <br />
+                        <!-- <mat-slide-toggle formControlName="promotion">Produto em promoção</mat-slide-toggle> <br> -->
+                        <mat-slide-toggle formControlName="ativo" [(ngModel)]="isAtivo">Produto ativo</mat-slide-toggle>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-lg-12 d-flex">
+                      <h6 class="m-0 text-muted">Preços</h6>
+
+                      <i (click)="adicionarCidadePreco('post')" class="fas fa-plus-circle btn-i text-success"></i>
+                    </div>
+                  </div>
+
+                  <ng-container *ngIf="selectCidade">
+                    <ng-container *ngFor='let c of cidadeArray; let i = index;'>
+                      <div class="row mt-3">
+                        <div class="col-lg-12 d-flex">
+                          <h6 class="m-0 text-muted">Produto #{{i + 1}}</h6>
+
+                          <i (click)="removerCidadePreco(i)" class="fas fa-minus-circle btn-i text-danger"></i>
+
+                          <i (click)="addProdutoCidadePost(i)" class="fas fa-check-circle btn-i text-success"></i>
+                        </div>
+                      </div>
+
+                      <div class="row mt-2">
+                        <div class="col-6 d-flex align-items-start w-100">
+                          <mat-form-field appearance="fill">
+                            <mat-label>Qual a cidade?</mat-label>
+                            <mat-select formControlName="cidade_id" (selectionChange)="ativarInputCidade(i)" [(ngModel)]="cidadeInitial">
+                              <mat-option *ngFor="let cidade of cidades" [value]="cidade['id'] + '-' + cidade['name']" >{{cidade['name']}}</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                        <div class="col-6">
+                          <mat-form-field class="example-full-width" appearance="fill">
+                            <mat-label>Valor do produto</mat-label>
+                            <input formControlName="sale_price" [disabled]="c.disabled"  [(ngModel)]="salePriceInitial" matInput placeholder="119,99" type="number" pattern="^\d*(\.\d{0,2})?$" >
+                          </mat-form-field>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-6">
+                          <mat-form-field class="example-full-width" appearance="fill">
+                            <mat-label>Valor promocional (opcional)</mat-label>
+                            <input formControlName="discount_price" [(ngModel)]="discountPriceInitial" [disabled]="c.disabled" matInput placeholder="109,99" type="number" pattern="^\d*(\.\d{0,2})?$" >
+                          </mat-form-field>
+                        </div>
+
+                        <div class="col-6">
+                          <div class="form-group">
+                            <mat-slide-toggle formControlName="promotion" class="mt-2">Produto em promoção</mat-slide-toggle> <br>
+                          </div>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-container *ngIf="viewTableProduto && produtoCidade">
+                    <ng-container *ngFor="let produto of produtoCidade; let i = index">
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <table class="table align-items-center table-flush">
+                            <thead class="thead-light">
+                              <tr>
+                                <th scope="col" class="sort" data-sort="name">#{{i}}</th>
+                                <th scope="col" class="sort" data-sort="name">Cidade</th>
+                                <th scope="col" class="sort" data-sort="status">Valor</th>
+                                <th scope="col" class="sort" data-sort="status">Valor Promocional</th>
+                                <th scope="col" class="sort" data-sort="budget">Promoção?</th>
+                              </tr>
+                            </thead>
+
+                            <tbody class="list">
+                              <tr>
+                                <td>
+                                  <i (click)="removerProdutoCidadePost(i)" class="fas fa-minus-circle btn-i text-danger"></i>
+                                </td>
+                                <td>
+                                  {{produto.cidade_name}}
+                                </td>
+                                <td>
+                                  {{produto.sale_price | currency: "BRL"}}
+                                </td>
+                                <td>
+                                  {{produto.discount_price | currency: "BRL"}}
+                                </td>
+                                <td class="flex-wrap">
+                                  <span *ngIf="produto.promotion">Sim</span>
+                                  <span *ngIf="!produto.promotion">Não</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </ng-container>
+                  </ng-container>
+                </div>
+
+                <!-- [disabled]="dataForm.invalid"  -->
+                <div class="text-right">
+                  <button  type="submit" [disabled]="disabledButtonEnviar" class="btn btn-success btn-50">Enviar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
+         <!-- EDITAR -->
+        <ng-container *ngIf="openView === 3">
+          <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex">
+            <div class="col-lg-8">
+              <h6 class="m-0 text-muted">Editar informações do Produto</h6>
+            </div>
+            <div class="col-lg-4 text-right">
+              <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                <span class="text">Voltar</span>
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <div *ngIf="!dataGetByID" class="box-spinner">
+              <mat-spinner color="warn" diameter="30"></mat-spinner>
+            </div>
+
+            <form [formGroup]="dataForm" *ngIf="dataGetByID" (ngSubmit)="update(dataGetByID.id)">
+              <!-- Alertas -->
+              <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                     [isOpen]="responseSrv.open"
+                     [dismissible]="responseSrv.dismissible"
+                     (onClosed)="responseSrv.onClosed()"
+              >
+                <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                  <span>{{mensagem}}</span><br />
+                </ng-container>
+              </alert>
+
+              <div class="p-4">
+                <div class="row">
+                  <div class="col-6">
+                    <mat-form-field appearance="fill">
+                      <mat-label>Nome</mat-label>
+                      <input formControlName="name" matInput (ngModelChange)="ativarButtonSubmitUpdate()" [(ngModel)]="dataGetByID.name">
+                    </mat-form-field>
+                  </div>
+
+                  <div class="col-6">
+                    <div class="form-group">
+                      <label class="form-control-label">Extras</label> <br />
+                      <!-- <mat-slide-toggle formControlName="promotion">Produto em promoção</mat-slide-toggle> <br> -->
+                      <mat-slide-toggle formControlName="ativo" [(ngModel)]="dataGetByID.ativo">Produto ativo</mat-slide-toggle>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-lg-12 d-flex">
+                    <h6 class="m-0 text-muted">Preços</h6>
+
+                    <i (click)="adicionarCidadePreco('update')" class="fas fa-plus-circle btn-i text-success"></i>
+                  </div>
+                </div>
+
+                <ng-container *ngIf="selectCidadeUpdate">
+                  <ng-container *ngFor='let c of cidadeArray; let i = index;'>
+                    <div class="row mt-3">
+                      <div class="col-lg-12 d-flex">
+                        <h6 class="m-0 text-muted">Produto #{{i + 1}}</h6>
+
+                        <i (click)="removerCidadePreco(i);" class="fas fa-minus-circle btn-i text-danger"></i>
+
+                        <i (click)="addProdutoCidadeUpdate(dataGetByID.id, i)" class="fas fa-check-circle btn-i text-success"></i>
+                      </div>
+                    </div>
+
+                    <div class="row mt-2">
+                      <div class="col-6 d-flex align-items-start w-100">
+                        <mat-form-field appearance="fill">
+                          <mat-label>Qual a cidade?</mat-label>
+                          <mat-select formControlName="cidade_id" (selectionChange)="ativarInputCidade(i)" [(ngModel)]="cidadeInitial">
+                            <mat-option *ngFor="let cidade of cidades" [value]="cidade['id'] + '-' + cidade['name']" >{{cidade['name']}}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                      <div class="col-6">
+                        <mat-form-field class="example-full-width" appearance="fill">
+                          <mat-label>Valor do produto</mat-label>
+                          <input formControlName="sale_price" [disabled]="c.disabled"  [(ngModel)]="salePriceInitial" matInput placeholder="119,99" type="number" pattern="^\d*(\.\d{0,2})?$" >
+                        </mat-form-field>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-6">
+                        <mat-form-field class="example-full-width" appearance="fill">
+                          <mat-label>Valor promocional (opcional)</mat-label>
+                          <input formControlName="discount_price" [(ngModel)]="discountPriceInitial" [disabled]="c.disabled" matInput placeholder="109,99" type="number" pattern="^\d*(\.\d{0,2})?$" >
+                        </mat-form-field>
+                      </div>
+
+                      <div class="col-6">
+                        <div class="form-group">
+                          <mat-slide-toggle formControlName="promotion" class="mt-2">Produto em promoção</mat-slide-toggle> <br>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-container>
+                </ng-container>
+
+                <ng-container *ngIf="viewTableProduto && produtoCidadeUpdate">
+                  <ng-container *ngFor="let produto of produtoCidadeUpdate; let i = index">
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <table class="table align-items-center table-flush">
+                          <thead class="thead-light">
+                          <tr>
+                            <th scope="col" class="sort" data-sort="name">#{{i}}</th>
+                            <th scope="col" class="sort" data-sort="name">Cidade</th>
+                            <th scope="col" class="sort" data-sort="status">Valor</th>
+                            <th scope="col" class="sort" data-sort="status">Valor Promocional</th>
+                            <th scope="col" class="sort" data-sort="budget">Promoção?</th>
+                          </tr>
+                          </thead>
+
+                          <tbody class="list">
+                          <tr>
+                            <td>
+                              <i *ngIf="!produto.open" (click)="editProdutoCidadeUpdate(produto.id, i)" class="fas fa-edit btn-i text-edit"></i>
+
+                              <i *ngIf="produto.open" (click)="fecharViewProdutoUpdate(produto.id, i)" class="fas fa-times-circle btn-i text-edit"></i>
+
+                              <i (click)="openModalDeleteProdutoCidade(produto.id, i)" class="fas fa-trash btn-i text-danger"></i>
+                            </td>
+                            <td>
+                              {{produto.cidade_name}}
+                            </td>
+                            <td>
+                              {{produto.sale_price | currency: "BRL"}}
+                            </td>
+                            <td>
+                              {{produto.discount_price | currency: "BRL"}}
+                            </td>
+                            <td class="flex-wrap">
+                              <span *ngIf="produto.promotion">Sim</span>
+                              <span *ngIf="!produto.promotion">Não</span>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+
+              <div class="text-right">
+                <button  type="submit" [disabled]="disabledButtonUpdate" class="btn btn-success btn-50">Enviar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        </ng-container>
+
+<!--        <ng-container *ngIf="openView === 3">-->
+<!--            &lt;!&ndash; Collapsable Card Example &ndash;&gt;-->
+<!--            <div class="card shadow mb-4">-->
+<!--              <div class="card-header py-3 d-flex">-->
+<!--                <div class="col-lg-8">-->
+<!--                  <h6 class="m-0 text-muted">Editar informações do Produto</h6>-->
+<!--                </div>-->
+<!--                <div class="col-lg-4 text-right">-->
+<!--                  <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">-->
+<!--                      <span class="text">Voltar</span>-->
+<!--                  </a>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--              <div class="card-body">-->
+<!--                <div *ngIf="!dataGetByID" class="box-spinner">-->
+<!--                  <mat-spinner color="warn" diameter="30"></mat-spinner>-->
+<!--                </div>-->
+
+<!--                <form [formGroup]="dataForm" *ngIf="dataGetByID" (ngSubmit)="update(dataGetByID.id)">-->
+<!--                  &lt;!&ndash; Alertas &ndash;&gt;-->
+<!--                  <alert class="alert-dismiss" type="{{responseSrv.alertType}}"-->
+<!--                  [isOpen]="responseSrv.open"-->
+<!--                  [dismissible]="responseSrv.dismissible"-->
+<!--                  (onClosed)="responseSrv.onClosed()"-->
+<!--                  >-->
+<!--                    <ng-container *ngFor="let mensagem of responseSrv.alertResponse">-->
+<!--                      <span>{{mensagem}}</span><br />-->
+<!--                    </ng-container>-->
+<!--                  </alert>-->
+
+<!--                  <div class="p-4">-->
+<!--                    <div class="row">-->
+<!--                      <div class="col-lg-6">-->
+<!--                        <div class="form-group">-->
+<!--                          <label class="form-control-label" for="input-email">Nome</label>-->
+<!--                          <input formControlName="name" [(ngModel)]="dataGetByID.name"  placeholder="Nome do Produto" type="text" class="form-control">-->
+<!--                          <span class="text-danger error" *ngIf="dataForm.controls.name.invalid">-->
+<!--                            Digite um nome válido.-->
+<!--                          </span>-->
+<!--                        </div>-->
+<!--                      </div>-->
+
+<!--                      <div class="col-lg-6">-->
+<!--                        <div class="form-group">-->
+<!--                          <label class="form-control-label" for="input-first-name">Valor</label>-->
+<!--                          <input formControlName="sale_price" [(ngModel)]="dataGetByID.sale_price" placeholder="119,99"  type="number" pattern="^\d*(\.\d{0,2})?$" class="form-control">-->
+<!--                          <span class="text-danger error" *ngIf="dataForm.controls.sale_price.invalid">-->
+<!--                            Insira um valor válido.-->
+<!--                          </span>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="row">-->
+<!--                      <div class="col-lg-6">-->
+<!--                        <div class="form-group">-->
+<!--                          <label class="form-control-label" for="input-first-name">Valor Promocional (não obrigatório)</label>-->
+<!--                          <input formControlName="discount_price" [(ngModel)]="dataGetByID.discount_price" placeholder="109,99" type="number" pattern="^\d*(\.\d{0,2})?$" class="form-control">-->
+<!--                        </div>-->
+<!--                      </div>-->
+
+<!--                      <div class="col-lg-6">-->
+<!--                        <div class="form-group">-->
+<!--                          <label class="form-control-label" for="input-first-name">Extras</label> <br />-->
+<!--                          <mat-slide-toggle formControlName="promotion" [(ngModel)]="dataGetByID.promotion">Produto em promoção</mat-slide-toggle> <br>-->
+<!--                          <mat-slide-toggle formControlName="ativo" [(ngModel)]="dataGetByID.ativo">Produto ativo</mat-slide-toggle>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                    </div>-->
+<!--                  </div>-->
+
+<!--                  <div class="text-right">-->
+<!--                    <button type="submit" [disabled]="dataForm.invalid"  class="btn btn-success btn-50">Enviar</button>-->
+<!--                  </div>-->
+<!--                </form>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--        </ng-container>-->
+    </div>
+</div>

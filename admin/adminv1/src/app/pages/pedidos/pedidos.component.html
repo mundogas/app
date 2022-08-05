@@ -1,0 +1,453 @@
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <!-- <h1 class="h3 mb-0 text-gray-800">pedidos</h1> -->
+    <h1 class="h4 mb-0 font-weight-bold text-theme">Pedidos</h1>
+</div>
+
+<div class="row">
+  <div style="margin-top: -25px; position: absolute; z-index: 99; right:10px">
+      <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+             [isOpen]="responseSrv.open2"
+             [dismissible]="responseSrv.dismissible"
+             (onClosed)="responseSrv.onClosed()"
+      >
+        <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+          <span>{{mensagem}}</span><br />
+        </ng-container>
+      </alert>
+  </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <!-- TABELA -->
+        <ng-container *ngIf="openView === 1">
+            <!-- Basic Card Example -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-end">
+                  <!-- <div class="col-lg-5">
+                    <h6 class="m-0 font-weight-bold text-theme">pedidos</h6>
+                  </div> -->
+
+                  <mat-form-field class="col-lg-4 search-form">
+                    <div class="input-group">
+                      <input matInput (keyup)="applyFilter($event)" placeholder="Pesquisar" #input>
+                    </div>
+                  </mat-form-field>
+
+                  <div class="col-lg-3 text-right">
+                    <!-- <a (click)="isOpenView(2, null)" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="text">Adicionar pedido</span>
+                    </a> -->
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="spinner" class="box-spinner">
+                    <mat-spinner color="warn" diameter="30"></mat-spinner>
+                  </div>
+
+                  <div *ngIf="!spinner" class="table-responsive">
+                      <table mat-table [dataSource]="dataSource" matSort class="table align-items-center table-flush" id="dataTable" width="100%" cellspacing="0">
+
+                      <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">#</th>
+                        <td mat-cell *matCellDef="let row">#{{row.id}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="data">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Data/Hora</th>
+                        <td mat-cell *matCellDef="let row">{{row.date_hour | date: 'dd/MM/yy HH:mm'}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="cliente">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Cliente</th>
+                        <td mat-cell *matCellDef="let row"> {{row.cliente.name}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="entregador">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Entregador</th>
+                          <td mat-cell *matCellDef="let row">
+                            <span *ngIf="row.entregador">{{row.entregador.name}}</span>
+                            <span *ngIf="!row.entregador">Nenhum entregador atribuído</span>
+                          </td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="status">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Status</th>
+                          <td mat-cell *matCellDef="let row"> {{row.status}}</td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="pagamento">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort">Pagamento</th>
+                          <td mat-cell *matCellDef="let row">No {{row.payment_method}},
+                            <span *ngIf="row.platform_payment === 'entrega'">na {{row.platform_payment}}</span>
+
+                            <span *ngIf="row.platform_payment === 'app'">pelo {{row.platform_payment}}</span></td>
+                      </ng-container>
+
+                      <ng-container matColumnDef="acoes">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header class="sort"></th>
+                          <td mat-cell *matCellDef="let row" class="text-right">
+                          <div class="dropdown">
+                              <a class="btn btn-sm btn-icon-only text-dark" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fas fa-ellipsis-v"></i>
+                              </a>
+                              <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                                <a (click)="isOpenView(4, row.id)" class="dropdown-item item-view">
+                                  <i class="fas fa-eye"></i>
+                                  <span>Visualizar</span>
+                                </a>
+
+                                <a (click)="isOpenView(3, row.id)"  class="dropdown-item item-edit">
+                                  <i class="fas fa-edit"></i>
+                                  <span *ngIf="!row.entregador">Adicionar entregador</span>
+                                  <span *ngIf="row.entregador">Alterar entregador</span>
+                                </a>
+
+                                <ng-container *ngIf="row.status != 'Cancelado'">
+                                  <a (click)="openModalCancel(row.id)"class="dropdown-item item-delete">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Cancelar</span>
+                                  </a>
+                                </ng-container>
+                              </div>
+                          </div>
+                          </td>
+                      </ng-container>
+
+                          <tr mat-header-row *matHeaderRowDef="displayed"></tr>
+                          <tr mat-row *matRowDef="let row; columns: displayed;"></tr>
+
+                          <tr class="mat-row no-data" *matNoDataRow>
+                              <p>Nenhum pedido cadastrado.</p>
+                          </tr>
+                      </table>
+                  </div>
+                  <!-- Card footer -->
+                  <div class="card-footer">
+                      <!-- PAGINATOR -->
+                      <mat-paginator
+                      [pageSizeOptions]="pageSizeOptions"
+                      >
+                      </mat-paginator>
+                  </div>
+                </div>
+            </div>
+            <!-- Collapsable Card Example -->
+
+        </ng-container>
+
+        <!-- ADD -->
+        <ng-container *ngIf="openView === 2">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex">
+              <div class="col-lg-8">
+                <h6 class="m-0 text-muted">Adicionar pedido</h6>
+              </div>
+              <div class="col-lg-4 text-right">
+                <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                    <span class="text">Voltar</span>
+                </a>
+              </div>
+            </div>
+            <div class="card-body">
+              <form [formGroup]="dataForm" (ngSubmit)="post()">
+                <!-- Alertas -->
+                <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                [isOpen]="responseSrv.open"
+                [dismissible]="responseSrv.dismissible"
+                (onClosed)="responseSrv.onClosed()"
+                >
+                  <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                    <span>{{mensagem}}</span><br />
+                  </ng-container>
+                </alert>
+
+                <div class="p-4">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-email">Nome</label>
+                        <input formControlName="name" placeholder="Nome do Cliente" type="text" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.name.invalid">
+                          Digite um nome válido.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Telefone</label>
+                        <input formControlName="phone" placeholder="exemplo@email.com" type="email" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.email.invalid">
+                          Digite um email válido.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Senha</label>
+                        <input formControlName="password" placeholder="********" autocomplete="new-password" type="password" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.password.invalid">
+                          Digite uma senha válido.
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label class="form-control-label" for="input-first-name">Confirmação de Senha</label>
+                        <input formControlName="password_confirmation" placeholder="********" autocomplete="new-password" type="password" class="form-control">
+                        <span class="text-danger error" *ngIf="dataForm.controls.password_confirmation.invalid">
+                          Digite uma confirmação de senha válida.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- [disabled]="dataForm.invalid" -->
+                <div class="text-right">
+                  <button type="reset" class="btn btn-light mr-2">Resetar</button>
+                  <button type="submit" [disabled]="dataForm.invalid"   class="btn btn-success btn-30">Enviar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
+         <!-- EDITAR ENTREGADOR -->
+         <ng-container *ngIf="openView === 3">
+            <!-- Collapsable Card Example -->
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex">
+                <div class="col-lg-8">
+                  <h6 class="m-0 text-muted">Alterar entregador</h6>
+                </div>
+                <div class="col-lg-4 text-right">
+                  <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                      <span class="text">Voltar</span>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body">
+                <form [formGroup]="updateEntregadorForm" *ngIf="dataGetByID && entregadores" (ngSubmit)="updateEntregador(dataGetByID.id)">
+                  <!-- Alertas -->
+                  <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+                  [isOpen]="responseSrv.open"
+                  [dismissible]="responseSrv.dismissible"
+                  (onClosed)="responseSrv.onClosed()"
+                  >
+                    <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                      <span>{{mensagem}}</span><br />
+                    </ng-container>
+                  </alert>
+
+                  <div class="p-4">
+                    <div class="row">
+                      <div class="col-lg-12">
+                        <div class="form-group">
+                        <label class="form-control-label">Entregador</label>
+                        <select formControlName="entregador_id" class="form-control" [(ngModel)]="dataGetByID.entregador_id">
+                            <option value="" selected>Selecione o entregador...</option>
+                            <option *ngFor="let entregador of entregadores" [value]="entregador.id">{{entregador.name}}</option>
+                        </select>
+                        <span class="text-danger error" *ngIf="updateEntregadorForm.controls.entregador_id.invalid">
+                            Insira a entregador responsável.
+                        </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <button type="submit" [disabled]="updateEntregadorForm.invalid"  class="btn btn-success btn-30">Enviar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </ng-container>
+
+         <!--  Visualizar -->
+        <ng-container *ngIf="openView === 4" class="row">
+          <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex">
+              <div class="col-lg-8">
+                <h6 class="m-0 text-muted">Histórico do pedido</h6>
+              </div>
+              <div class="col-lg-4 text-right">
+                <a (click)="isOpenView(1, null)" class="btn btn-primary btn-icon-split btn-sm">
+                  <span class="text">Voltar</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Alertas -->
+              <alert class="alert-dismiss" type="{{responseSrv.alertType}}"
+              [isOpen]="responseSrv.open"
+              [dismissible]="responseSrv.dismissible"
+              (onClosed)="responseSrv.onClosed()"
+              >
+                <ng-container *ngFor="let mensagem of responseSrv.alertResponse">
+                  <strong>{{mensagem}}</strong><br />
+                </ng-container>
+              </alert>
+
+
+              <ng-container *ngIf="!dataGetByID" class="box-spinner">
+                <mat-spinner color="warn" diameter="30"></mat-spinner>
+              </ng-container>
+
+              <ng-container *ngIf="dataGetByID">
+                  <h6 class="heading-small text-muted">Cliente</h6>
+                  <div class="row pt-1">
+                      <div class="col-lg-12">
+                        <table class="table table-responsive align-items-center table-flush">
+                          <thead class="thead-light">
+                            <tr>
+                              <th scope="col" class="sort" data-sort="name">Nome</th>
+                              <th scope="col" class="sort" data-sort="status">Celular</th>
+                              <th scope="col" class="sort" data-sort="status">Endereço</th>
+                              <th scope="col" class="sort" data-sort="status">Cidade</th>
+                              <th scope="col" class="sort" data-sort="status">CEP</th>
+                            </tr>
+                          </thead>
+
+                          <tbody class="list">
+                            <tr>
+                              <td>
+                                {{dataGetByID.cliente.name}}
+                              </td>
+                              <td>
+                                {{dataGetByID.cliente.phone}}
+                              </td>
+                              <td>
+                                {{dataGetByID.endereco.address}}, {{dataGetByID.endereco.number}} - {{dataGetByID.endereco.district}}, {{dataGetByID.endereco.complement}}
+                              </td>
+                              <td>
+                                {{dataGetByID.endereco.cidade.cidade_name.name}}
+                              </td>
+                              <td>
+                                {{dataGetByID.endereco.zipcode}}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                  </div>
+
+                  <h6 class="heading-small text-muted  mt-3">Pedido</h6>
+                  <div class="row pt-2">
+                    <div class="col-lg-12">
+                      <!-- <label class="form-control-label">Endereços</label> -->
+
+                      <table class="table table-responsive align-items-center table-flush">
+                        <thead class="thead-light">
+                          <tr>
+                            <th scope="col" class="sort" data-sort="name">Data/Hora</th>
+                            <th scope="col" class="sort" data-sort="status">Entregador</th>
+                            <th scope="col" class="sort" data-sort="status">Status</th>
+                            <th scope="col" class="sort" data-sort="budget">Total</th>
+                            <th scope="col" class="sort" data-sort="status">Forma de Pagamento</th>
+                          </tr>
+                        </thead>
+
+                        <tbody class="list">
+                          <ng-container *ngIf="dataGetByID === null">
+                            <td class="budget">
+                              Sem histórico de pedidos.
+                            </td>
+                          </ng-container>
+
+                          <ng-container *ngIf="dataGetByID">
+                            <tr>
+                              <td>
+                                {{dataGetByID.date_hour | date: 'dd/MM/yy HH:mm'}}
+                              </td>
+                              <td>
+                                <span *ngIf="dataGetByID.entregador">{{dataGetByID.entregador.name}}</span>
+                                <span *ngIf="!dataGetByID.entregador">Nenhum entregador atribuído</span>
+                              </td>
+                              <td>
+                                {{dataGetByID.status}}
+                              </td>
+                              <td class="flex-wrap">
+                                {{dataGetByID.total | currency: 'BRL'}}
+                              </td>
+                              <td>
+                                No {{dataGetByID.payment_method}},
+                                <span *ngIf="dataGetByID.platform_payment === 'entrega'">na {{dataGetByID.platform_payment}}</span>
+
+                                <span *ngIf="dataGetByID.platform_payment === 'app'">pelo {{dataGetByID.platform_payment}}</span>
+                              </td>
+                            </tr>
+                          </ng-container>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <h6 class="heading-small text-muted mt-3">Itens do Pedido</h6>
+                  <div class="row pt-2">
+                    <div class="col-lg-12">
+                      <table class="table table-responsive align-items-center">
+                        <thead class="thead-light">
+                          <tr>
+                            <th scope="col" class="sort" data-sort="name">Nome</th>
+                            <th scope="col" class="sort" data-sort="status">Qtde</th>
+                            <th scope="col" class="sort" data-sort="status">Peso</th>
+                            <th scope="col" class="sort" data-sort="status">Valor</th>
+                          </tr>
+                        </thead>
+
+                        <tbody class="list">
+                          <tr *ngFor="let item of dataGetByID.itens">
+                            <td>
+                              {{item.name_produto.name}}
+                            </td>
+                            <td>
+                              {{item.qtde}}
+                            </td>
+                            <td>
+                              {{item.weight_product}}
+                            </td>
+                            <td>
+                              {{item.value | currency: 'BRL'}}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <h6 class="heading-small text-muted mt-3">Feedback do Pedido</h6>
+                  <div class="row pt-2">
+                    <div class="col-lg-12">
+                      <div *ngIf="spinnerFeedback" class="box-spinner">
+                        <mat-spinner color="warn" diameter="30"></mat-spinner>
+                      </div>
+
+                      <div *ngIf="!spinnerFeedback">
+                        <ng-container *ngIf="feedbacks === null">
+                          <td class="budget">
+                            Nenhum feedback encontrado.
+                          </td>
+                        </ng-container>
+
+                        <ng-container *ngIf="feedbacks">
+                          <!-- <i class="far fa-star"></i> -->
+                          <i  *ngFor="let stars of feedbacks.stars_array" class="fas fa-star"></i>
+
+                          <p class="pt-1 size-15" *ngIf="feedbacks.obs">{{feedbacks.obs}}</p>
+                          <p class="pt-1 size-15" *ngIf="!feedbacks.obs">Nenhuma observação</p>
+                        </ng-container>
+                      </div>
+                    </div>
+                  </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+    </div>
+</div>

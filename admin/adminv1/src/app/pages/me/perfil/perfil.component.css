@@ -1,0 +1,7 @@
+.no-border .form-control{
+    border: 0px;
+    padding: 0px;
+}
+.min-height{
+    min-height: 150px !important;
+}

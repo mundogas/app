@@ -1,0 +1,133 @@
+<!-- Sidebar -->
+<ul class="navbar-nav bg-gradient-dark sidebar sidebar-dark accordion" [class]="asideService.toggled" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center">
+        <!-- <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+        </div> -->
+        <!-- <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div> -->
+        <div class="sidebar-brand-img"><img src="assets/img/brand/logotipo.png"></div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item">
+        <a class="nav-link" routerLink="/administrativo/dashboard">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span></a>
+    </li>
+
+    <!-- Divider -->
+    <!-- <hr class="sidebar-divider"> -->
+
+    <!-- Heading -->
+    <!-- <div class="sidebar-heading">
+        Configurações
+    </div> -->
+
+    <!-- Se não for administrador-->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" routerLink="/administrativo/perfil">
+            <i class="fas fa-user-cog"></i>
+            <span>Perfil</span>
+        </a>
+    </li> -->
+    
+    <!-- Divider -->
+    <!-- <hr class="sidebar-divider"> -->
+
+    <!-- Heading -->
+    <!-- <div class="sidebar-heading">
+        Páginas
+    </div> -->
+
+    <!-- Nav Item - Pages Collapse Menu -->
+    <li class="nav-item" >
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseUsers" aria-expanded="true"
+            aria-controls="collapseUsers">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Usuários</span>
+        </a>
+
+        <div id="collapseUsers" *ngIf="tokenSrv.getNivel() === 'admin' && tokenSrv.getNivel() != 'user'" class="collapse" aria-labelledby="headingPages"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" routerLink="/administrativo/administradores">Administradores</a>
+
+                <a class="collapse-item" routerLink="/administrativo/entregadores">Entregadores</a>
+
+                <a class="collapse-item" routerLink="/administrativo/clientes">Clientes</a>
+            </div>
+        </div>
+
+        <div *ngIf="tokenSrv.getNivel() === 'empresa' && tokenSrv.getNivel() != 'user'" id="collapsePages" class="collapse show" aria-labelledby="headingPages"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Minhas Obras:</h6>
+                <a class="collapse-item" routerLink="/administrativo/entregadores">404 Page</a>
+                <a class="collapse-item active" routerLink="/administrativo/entregadores">...</a>
+            </div>
+        </div>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" routerLink="/administrativo/cidades">
+            <i class="fas fa-map-marked-alt"></i>
+            <span>Cidades</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" routerLink="/administrativo/produtos">
+            <i class="fas fa-fire"></i>
+            <span>Produtos</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" routerLink="/administrativo/pedidos">
+            <i class="fas fa-dolly"></i>
+            <span>Pedidos</span>
+        </a>
+    </li>
+
+    <!-- <li class="nav-item" >
+        <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true"
+            aria-controls="collapsePages">
+            <i class="fas fa-fw fa-folder"></i>
+            <span>Gerenciamento</span>
+        </a>
+
+        <div id="collapsePages" *ngIf="tokenSrv.getNivel() === 'admin'" class="collapse" aria-labelledby="headingPages"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" routerLink="/administrativo/cidades">Cidades</a>
+                <a class="collapse-item" routerLink="/administrativo/produtos">Produtos</a>
+                <a class="collapse-item" routerLink="/administrativo/pedidos">Pedidos</a>
+            </div>
+        </div>
+
+        <div *ngIf="tokenSrv.getNivel() === 'empresa' && tokenSrv.getNivel() != 'user'" id="collapsePages" class="collapse show" aria-labelledby="headingPages"
+            data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">Minhas Obras:</h6>
+                <a class="collapse-item" routerLink="/administrativo/produtos">Obras</a>
+                <a class="collapse-item active" routerLink="/administrativo/empresas">...</a>
+            </div>
+        </div>
+    </li> -->
+    
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler (Sidebar) -->
+    <div class="text-center d-none d-md-inline">
+        <button (click)="asideService.onClickToggle()" class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+<!-- End of Sidebar -->
+

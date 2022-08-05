@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Mundo do Gás | Entregador",
+    "slug": "mundogas-entregador",
+    "version": "1.2.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mundogas.entregador.app",
+      "buildNumber": "1.2.1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.mundogas.entregador.app",
+      "versionCode": 2,
+      "permissions": [""]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2026a205-6885-4f9b-9c14-86b6a0f90ade"
+      }
+    }
+  }
+}
